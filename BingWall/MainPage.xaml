@@ -1,0 +1,82 @@
+﻿<phone:PhoneApplicationPage xmlns:my="clr-namespace:BingWall"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:Custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
+    x:Class="BingWall.MainPage"
+    mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="768"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    shell:SystemTray.IsVisible="True" >
+	<phone:PhoneApplicationPage.Resources>
+		<DataTemplate x:Key="WorldListItemTemplate">
+			<Grid>
+                <my:LocalFileImage Height="220" Width="176" FileName="{Binding ThumbnailFileName}" HorizontalAlignment="Left" Margin="0,0,0,8" VerticalAlignment="Top" IsHitTestVisible="False" />
+				<TextBlock Text="{Binding Text}" Margin="200,0,0,0" VerticalAlignment="Top" Padding="0,0,24,0" Style="{StaticResource PhoneTextLargeStyle}" MaxHeight="172" IsHitTestVisible="False" />
+                <TextBlock Text="{Binding SubText}" Margin="200,176,0,0" VerticalAlignment="Top" Padding="0,0,24,0" Style="{StaticResource PhoneTextSubtleStyle}" IsHitTestVisible="False" />
+            </Grid>
+		</DataTemplate>
+	</phone:PhoneApplicationPage.Resources>
+
+	<phone:PhoneApplicationPage.FontFamily>
+		<StaticResource ResourceKey="PhoneFontFamilyNormal"/>
+	</phone:PhoneApplicationPage.FontFamily>
+	<phone:PhoneApplicationPage.FontSize>
+		<StaticResource ResourceKey="PhoneFontSizeNormal"/>
+	</phone:PhoneApplicationPage.FontSize>
+	<phone:PhoneApplicationPage.Foreground>
+		<StaticResource ResourceKey="PhoneForegroundBrush"/>
+	</phone:PhoneApplicationPage.Foreground>
+    
+    <toolkit:TransitionService.NavigationInTransition>
+        <toolkit:NavigationInTransition>
+            <toolkit:NavigationInTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardIn"/>
+            </toolkit:NavigationInTransition.Backward>
+        </toolkit:NavigationInTransition>
+    </toolkit:TransitionService.NavigationInTransition>
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardOut"/>
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
+   
+    <!--Sample code showing usage of ApplicationBar--><!--
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="False">
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.back.rest.png" Text="previous" Click="backButton_Click" x:Name="backButton" />
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.save.rest.png" Text="save" x:Name="saveButton" Click="saveButton_Click" />
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.next.rest.png" Text="next" x:Name="nextButton" Click="nextButton_Click" />
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+        --><!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <Grid.RowDefinitions>
+        	<RowDefinition Height="Auto"/>
+        	<RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!--TitlePanel contains the name of the application and page title-->
+        <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="0,17,0,24">
+            <Grid Height="27" Margin="12,0,0,0">
+            <TextBlock x:Name="ApplicationTitle" Text="BING2WALL" Style="{StaticResource PhoneTextNormalStyle}"/>
+            <TextBlock x:Name="countryLabel" Text="UNITED STATES" Style="{StaticResource PhoneTextAccentStyle}" TextAlignment="Right" Margin="128,0,12,0" HorizontalAlignment="Right" MouseLeftButtonDown="countryLabel_MouseLeftButtonDown" VerticalAlignment="Top" />
+            </Grid>
+            <TextBlock x:Name="PageTitle" Text="6 days ago" Margin="21,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}" ManipulationDelta="paging_ManipulationDelta" ManipulationCompleted="paging_ManipulationCompleted" />
+        </StackPanel>
+
+        <!--ContentPanel - place additional content here-->
+        <Grid x:Name="ContentPanel" Grid.Row="1" Margin="0,0,0,8">
+            <ProgressBar Height="10" HorizontalAlignment="Stretch" Margin="0,-8,0,0" x:Name="progressBar1" VerticalAlignment="Top" IsIndeterminate="True" Visibility="Collapsed" />
+            <ListBox my:TiltEffect.IsTiltEnabled="True" Width="428" x:Name="worldList" Margin="28,8,0,0" ItemTemplate="{StaticResource WorldListItemTemplate}" SelectionChanged="worldList_SelectionChanged" HorizontalAlignment="Left" Height="524" VerticalAlignment="Top" ManipulationCompleted="paging_ManipulationCompleted" ManipulationDelta="paging_ManipulationDelta" />
+            <TextBlock Height="30" HorizontalAlignment="Stretch" Margin="6,400,0,0" x:Name="statusLabel" Text="no image for this day in this region" VerticalAlignment="Top" Visibility="Collapsed" TextAlignment="Center" IsHitTestVisible="False" />
+            <Image Height="600" HorizontalAlignment="Center" Margin="0,8,0,0" x:Name="imagePreview" Stretch="UniformToFill" VerticalAlignment="Top" Width="360" Visibility="Visible" MouseLeftButtonUp="imagePreview_MouseLeftButtonUp" ManipulationDelta="paging_ManipulationDelta" ManipulationCompleted="paging_ManipulationCompleted" />
+        </Grid>
+    </Grid>
+
+</phone:PhoneApplicationPage>

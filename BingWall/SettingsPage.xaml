@@ -1,0 +1,145 @@
+﻿<phone:PhoneApplicationPage 
+    xmlns:my="clr-namespace:BingWall"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit" 
+    xmlns:Custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
+    x:Class="BingWall.SettingsPage"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480"
+    shell:SystemTray.IsVisible="True">
+
+    <toolkit:TransitionService.NavigationInTransition>
+        <toolkit:NavigationInTransition>
+            <toolkit:NavigationInTransition.Backward>
+                <toolkit:SlideTransition Mode="SlideRightFadeIn"/>
+            </toolkit:NavigationInTransition.Backward>
+            <toolkit:NavigationInTransition.Forward>
+                <toolkit:SlideTransition Mode="SlideLeftFadeIn"/>
+            </toolkit:NavigationInTransition.Forward>
+        </toolkit:NavigationInTransition>
+    </toolkit:TransitionService.NavigationInTransition>
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Backward>
+                <toolkit:SlideTransition Mode="SlideRightFadeOut"/>
+            </toolkit:NavigationOutTransition.Backward>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:SlideTransition Mode="SlideLeftFadeOut"/>
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
+
+
+    <phone:PhoneApplicationPage.Resources>
+        <DataTemplate x:Key="FullModeDataTemplate">
+            <TextBlock Margin="12,16" Text="{Binding Name}" DataContext="{Binding}" FontSize="{StaticResource PhoneFontSizeLarge}" FontFamily="Segoe WP Light" Height="43" HorizontalAlignment="Left" Width="440" VerticalAlignment="Center">
+			</TextBlock>
+        </DataTemplate>
+    </phone:PhoneApplicationPage.Resources>
+
+    <!--Sample code showing usage of ApplicationBar-->
+    <!--<phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar_button1.png" Text="Button 1"/>
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar_button2.png" Text="Button 2"/>
+            <shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem Text="MenuItem 1"/>
+                <shell:ApplicationBarMenuItem Text="MenuItem 2"/>
+            </shell:ApplicationBar.MenuItems>
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>-->
+
+    <phone:PhoneApplicationPage.FontFamily>
+        <StaticResource ResourceKey="PhoneFontFamilyNormal"/>
+    </phone:PhoneApplicationPage.FontFamily>
+    <phone:PhoneApplicationPage.FontSize>
+        <StaticResource ResourceKey="PhoneFontSizeNormal"/>
+    </phone:PhoneApplicationPage.FontSize>
+    <phone:PhoneApplicationPage.Foreground>
+        <StaticResource ResourceKey="PhoneForegroundBrush"/>
+    </phone:PhoneApplicationPage.Foreground>
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!--TitlePanel contains the name of the application and page title-->
+        <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="12,17,0,28">
+            <TextBlock x:Name="ApplicationTitle" Text="BING2WALL" Style="{StaticResource PhoneTextNormalStyle}"/>
+            <TextBlock x:Name="PageTitle" Text="settings" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
+        </StackPanel>
+
+        <!--ContentPanel - place additional content here-->
+        <StackPanel x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+            <TextBlock x:Name="textBlock1" Text="Home country/region:" Style="{StaticResource PhoneTextSubtleStyle}" />
+            <Border BorderBrush="{StaticResource PhoneTextBoxBrush}" 
+                    BorderThickness="{StaticResource PhoneBorderThickness}" 
+                    Background="{StaticResource PhoneTextBoxBrush}" 
+                    Margin="{StaticResource PhoneTouchTargetOverhang}" MouseLeftButtonDown="Border_MouseLeftButtonDown">
+                <ContentControl x:Name="selectedRegion" 
+                                BorderThickness="0" 
+                                HorizontalContentAlignment="Stretch" 
+                                Margin="{StaticResource PhoneTextBoxInnerMargin}" 
+                                Padding="8,2,2,2" 
+                                VerticalContentAlignment="Stretch" 
+                                Content="{Binding SelectedItem.Name}" 
+                                FontSize="{StaticResource PhoneFontSizeMediumLarge}"
+                                FontFamily="{StaticResource PhoneFontFamilyNormal}"
+                                Foreground="{StaticResource PhoneTextBoxForegroundBrush}" MinHeight="40" IsHitTestVisible="False" />
+            </Border>
+            <TextBlock x:Name="regionFilterText" Text="The country/region list is filtered to those with known mobile Bing background support." Style="{StaticResource PhoneTextSubtleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="12,8,24,0">
+            </TextBlock>
+            <HyperlinkButton Content="Show all countries and regions" x:Name="regionFilterToggleButton" HorizontalAlignment="Left" HorizontalContentAlignment="Left" Click="regionFilterToggleButton_Click" Margin="0,8,0,0" />
+            <!--
+            <TextBlock Name="textBlock2" Text="On some phone models images will show banding when displayed on the lock screen. Bing2Wall can process images before saving to avoid this." Style="{StaticResource PhoneTextSubtleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="12,24,24,0" />
+            <CheckBox Content="Process images before saving" Height="72" Name="processCheckBox" Checked="processCheckBox_Checked" Unchecked="processCheckBox_Unchecked" />
+-->
+        </StackPanel>
+        <Popup Name="regionPopup" Width="480">
+            <Border Background="{StaticResource PhoneChromeBrush}" Height="784" Width="480" Name="popupBorder">
+                <!-- Popup.Child should always be a Border -->
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <ContentControl
+                                            Grid.Row="0"
+                                            
+                                            Foreground="{StaticResource PhoneForegroundBrush}"
+                                            FontFamily="{StaticResource PhoneFontFamilySemiBold}"
+                                            FontSize="{StaticResource PhoneFontSizeMedium}"
+                                            HorizontalAlignment="Left"
+                                            Margin="24 12 0 0" 
+                    Content="SELECT COUNTRY/REGION">
+
+                    </ContentControl>
+                    <ListBox my:TiltEffect.IsTiltEnabled="True"
+                                            x:Name="regionSelector"
+                                            Grid.Row="1"
+                                            
+                                            FontSize="22"
+                                            Margin="{StaticResource PhoneMargin}" 
+                        ItemsSource="{Binding Regions}"
+                        ItemTemplate="{StaticResource FullModeDataTemplate}">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel/>
+                                <!-- Ensures all containers will be available during the Loaded event -->
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                    </ListBox>
+                </Grid>
+            </Border>
+        </Popup>
+    </Grid>
+
+</phone:PhoneApplicationPage>
