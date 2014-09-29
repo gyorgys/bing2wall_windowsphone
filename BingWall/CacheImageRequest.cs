@@ -37,6 +37,7 @@ namespace BingWall
         public string FileName { get; protected set; }
         public int DaysAgo { get; protected set; }
         public string Market { get; protected set; }
+        public bool Landscape { get; protected set; }
  
         protected HttpWebRequest imageRequest;
         protected OnEndGetImageDelegate callback;
@@ -55,11 +56,12 @@ namespace BingWall
     public class CacheFullImageRequest : CacheImageRequest
     {
 
-        public CacheFullImageRequest(string fileName, int daysAgo, string market)
+        public CacheFullImageRequest(string fileName, int daysAgo, string market, bool landscape)
         {
             this.FileName = fileName;
             this.DaysAgo = daysAgo;
             this.Market = market;
+            this.Landscape = landscape;
         }
 
         public override void Begin(OnEndGetImageDelegate callback)
@@ -71,7 +73,7 @@ namespace BingWall
 
             this.callback = callback;
 
-            string url = Utils.GetImageUrl(DaysAgo, Market);
+            string url = Utils.GetImageUrl(DaysAgo, Market, Landscape);
 
             Debug.WriteLine("Requesting " + url);
 
@@ -107,7 +109,8 @@ namespace BingWall
                         if (response.ContentType == "image/jpeg")
                         {
                             cacheResult.etag = Utils.GetEtag(response);
-                            ImageCache.CacheImage(response.GetResponseStream(), FileName, true);
+                            string info = Utils.GetPhotoInfo(response);
+                            ImageCache.CacheImage(response.GetResponseStream(), FileName, info, true);
                             Debug.WriteLine("Saved " + FileName);
                             dump += String.Format("Saved to: {0}\n", FileName);
                             cacheResult.status = CacheImageResultStatus.Success;

@@ -5,6 +5,9 @@ using System.Diagnostics;
 using System.IO.IsolatedStorage;
 using System.Windows.Media.Imaging;
 using System.IO;
+using System.Net;
+using System.Linq;
+using Microsoft.Phone.Shell;
 
 namespace BingWall
 {
@@ -27,11 +30,12 @@ namespace BingWall
             }
         }
 
-        public static string GetImageUrl(int daysAgo, string culture)
+        public static string GetImageUrl(int daysAgo, string culture, bool landscape)
         {
             return String.Format(
-                "http://appserver.m.bing.net/BackgroundImageService/TodayImageService.svc/GetTodayImage?dateOffset=-{0}&urlEncodeHeaders=true&osName=wince&osVersion=7.0&orientation=480x800&deviceName=WP7Device&mkt={1}",
-                daysAgo, culture);
+                "http://appserver.m.bing.net/BackgroundImageService/TodayImageService.svc/GetTodayImage?dateOffset=-{0}&urlEncodeHeaders=true&osName=wince&osVersion=7.0&orientation={2}&deviceName=WP7Device&mkt={1}",
+                daysAgo, culture,
+                landscape ? "800x480" : "480x800");
 
         }
 
@@ -40,6 +44,64 @@ namespace BingWall
             string cultureCode = culture == "default" ? CultureInfo.CurrentCulture.Name : culture;
             return cultureCode;
         }
+
+        static ShellTileSchedule tileSchedule = null;
+
+
+        public static void EnableLiveTile()
+        {
+            if (Settings.LiveTile == true) return;
+            SetupLiveTile(true);
+            Settings.LiveTile = true;
+        }
+
+        public static void SetupLiveTile(bool setupSchedule)
+        {
+            ShellTile tile = ShellTile.ActiveTiles.First();
+            string url = String.Format(@"http://appserver.m.bing.net/BackgroundImageService/TodayImageService.svc/GetTodayImage?dateOffset=0&urlEncodeHeaders=true&osName=wince&osVersion=7.0&orientation=240x240&deviceName=WP7Device&mkt={0}", Utils.EffectiveCulture(Settings.CultureCode));
+
+            if (tile != null)
+            {
+                tile.Update(new StandardTileData { Title = "Bing2Wall", BackgroundImage = new Uri(url) });
+            }
+
+            if (setupSchedule)
+            {
+                tileSchedule = new ShellTileSchedule();
+
+                tileSchedule.Interval = UpdateInterval.EveryHour;
+                tileSchedule.Recurrence = UpdateRecurrence.Interval;
+                tileSchedule.RemoteImageUri = new Uri(url);
+                tileSchedule.Start();
+            }
+        }
+
+        public static void DisableLiveTile()
+        {
+            if (Settings.LiveTile == false) return;
+
+            ShellTile tile = ShellTile.ActiveTiles.First();
+            if (tile != null)
+            {
+                tile.Update(new StandardTileData { Title = "Bing2Wall", BackgroundImage = new Uri("appdata:/Background.png") });
+
+                if (tileSchedule == null)
+                {
+                    string url = String.Format(@"http://appserver.m.bing.net/BackgroundImageService/TodayImageService.svc/GetTodayImage?dateOffset=0&urlEncodeHeaders=true&osName=wince&osVersion=7.0&orientation=240x240&deviceName=WP7Device&mkt={0}", Utils.EffectiveCulture(Settings.CultureCode));
+
+                    tileSchedule = new ShellTileSchedule();
+
+                    tileSchedule.Interval = UpdateInterval.EveryHour;
+                    tileSchedule.Recurrence = UpdateRecurrence.Interval;
+                    tileSchedule.RemoteImageUri = new Uri(url);
+                    tileSchedule.Start();
+                }
+                tileSchedule.Stop();
+            }
+            Settings.LiveTile = false;
+
+        }
+
 /*
         internal static string SaveDitheredBitmap(string fileName, WriteableBitmap image)
         {
@@ -192,6 +254,22 @@ namespace BingWall
                 return Guid.NewGuid().ToString();
             }
         }
+        
+        internal static string GetPhotoInfo(System.Net.HttpWebResponse response)
+        {
+            try
+            {
+                return HttpUtility.UrlDecode( response.Headers["Image-Info-Credit"]).Replace("-- ","\n");
+            }
+            catch (Exception)
+            {
+                return "no photo info";
+            }
+        }
+    
+    
+    
+
     }
 }
 

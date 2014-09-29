@@ -15,6 +15,7 @@ namespace BingWall
         //private static bool processImage;
         private static string cultureName;
         private static bool dontShowSaved;
+        private static bool liveTile;
 
 #if DEBUG
         //private static bool resampleTo16Bit;
@@ -53,6 +54,19 @@ namespace BingWall
             }
         }
 
+        public static bool LiveTile
+        {
+            get
+            {
+                InitIfNeeded();
+                return Settings.liveTile;
+            }
+            set
+            {
+                Settings.liveTile = value;
+                IsolatedStorageSettings.ApplicationSettings["liveTile"] = liveTile;
+            }
+        }
 
 /*
         public static bool ProcessImage
@@ -145,7 +159,7 @@ namespace BingWall
             set
             {
                 oobeShown = value;
-                IsolatedStorageSettings.ApplicationSettings["oobeShown2"] = oobeShown;
+                IsolatedStorageSettings.ApplicationSettings["oobeShown4"] = oobeShown;
             }
         }
 
@@ -174,7 +188,7 @@ namespace BingWall
 
                 try
                 {
-                    oobeShown = (bool)IsolatedStorageSettings.ApplicationSettings["oobeShown2"];
+                    oobeShown = (bool)IsolatedStorageSettings.ApplicationSettings["oobeShown4"];
                 }
                 catch (System.Collections.Generic.KeyNotFoundException)
                 {
@@ -190,7 +204,15 @@ namespace BingWall
                     DontShowSaved = false;
                 }
 
-                
+                try
+                {
+                    liveTile = (bool)IsolatedStorageSettings.ApplicationSettings["liveTile"];
+                }
+                catch (System.Collections.Generic.KeyNotFoundException)
+                {
+                    liveTile = false;
+                }
+               
                 try
                 {
                     regionFilter = (bool)IsolatedStorageSettings.ApplicationSettings["regionFilter"];

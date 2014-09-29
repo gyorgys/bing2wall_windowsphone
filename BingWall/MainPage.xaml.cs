@@ -14,6 +14,7 @@ using Microsoft.Xna.Framework.Media;
 using Microsoft.Phone.Net.NetworkInformation;
 using System.Collections.Generic;
 using System.Windows.Media;
+
 #if ADSUPPORTED
 using Microsoft.Advertising.Mobile.UI;
 #endif
@@ -22,7 +23,7 @@ namespace BingWall
 {
     public partial class MainPage : PhoneApplicationPage
     {
-        //private bool firstInstance = false;
+        private bool firstInstance = false;
         private int daysAgo = 0;
         private bool loading = false;
         private bool saving = false;
@@ -44,6 +45,7 @@ namespace BingWall
         ApplicationBarIconButton nextButton;
         ApplicationBarIconButton saveButton;
         ApplicationBarIconButton modeButton;
+        ApplicationBarMenuItem infoMenuItem;
 
         ApplicationBar normalAppBar;
         ApplicationBar itemAppBar;
@@ -58,6 +60,10 @@ namespace BingWall
         public MainPage()
         {
             InitializeComponent();
+            
+
+            firstInstance = true;
+
             CreateAppBar();
 
             this.BackKeyPress += new EventHandler<CancelEventArgs>(MainPage_BackKeyPress);
@@ -65,45 +71,11 @@ namespace BingWall
             flyoutAnimation.Attach(PageTitle);
             flyoutAnimation.Attach(worldList);
             flyoutAnimation.Attach(imagePreview);
+            flyoutAnimation.Attach(infoPanel);
 
             flyoutAnimation.Completed += new EventHandler(flyoutAnimation_Completed);
-#if ADSUPPORTED
-            SetupAds();
-#endif               
+            LayoutControls();
         }
-
-#if ADSUPPORTED
-        private void SetupAds()
-        {
-
-#if DEBUG
-            AdControl adControl = new AdControl("test_client", // ApplicationID
-                                "Image480_80",    // AdUnitID
-                                AdModel.Contextual, // AdModel
-                                true);         // RotationEnabled
-
-
-            AdControl.TestMode = true;
-#else
-                AdControl adControl = new AdControl("28600c69-dba2-41fc-8f9c-d2fb81d37000", // ApplicationID
-                                    "10013904",    // AdUnitID
-                                    AdModel.Contextual, // AdModel
-                                    true);         // RotationEnabled
-                AdControl.TestMode = false;
-
-#endif
-            adControl.Width = 480;
-            adControl.Height = 80;
-            adControl.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
-            adControl.Margin = new Thickness(0, 0, 0, 0);
-            TitlePanel.Margin = new Thickness(0, 17, 0, 8);
-            ContentPanel.Children.Add(adControl);
-
-            worldList.Height = 474;
-            imagePreview.Height = 474;
-            PageTitle.FontSize = 48;
-        }
-#endif
 
         private void SetWorldListLoader(WorldListLoader loader)
         {
@@ -182,6 +154,12 @@ namespace BingWall
             normalAppBar.IsMenuEnabled = true;
             itemAppBar.IsMenuEnabled = true;
 
+            infoMenuItem = new ApplicationBarMenuItem("show photo info");
+            infoMenuItem.Click += new EventHandler(infoMenuItem_Click);
+            infoMenuItem.IsEnabled = true;
+            normalAppBar.MenuItems.Add(infoMenuItem);
+            itemAppBar.MenuItems.Add(infoMenuItem);
+
             ApplicationBarMenuItem settingsMenuItem = new ApplicationBarMenuItem("settings");
             settingsMenuItem.Click += new EventHandler(settingsMenuItem_Click);
             settingsMenuItem.IsEnabled = true;
@@ -201,6 +179,25 @@ namespace BingWall
             normalAppBar.MenuItems.Add(debugMenuItem);
 #endif
             ApplicationBar = normalAppBar;
+        }
+
+        void infoMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowHideInfo(infoPanel.Visibility == System.Windows.Visibility.Collapsed);
+        }
+
+        private void ShowHideInfo(bool show)
+        {
+            if (show)
+            {
+                infoPanel.Visibility = System.Windows.Visibility.Visible;
+                infoMenuItem.Text = "hide photo info";
+            }
+            else
+            {
+                infoPanel.Visibility = System.Windows.Visibility.Collapsed;
+                infoMenuItem.Text = "show photo info";
+            }
         }
 
         void modeButton_Click(object sender, EventArgs e)
@@ -230,6 +227,7 @@ namespace BingWall
                 imagePreview.Visibility = System.Windows.Visibility.Visible;
                 modeButton.IconUri = new Uri("/images/appbar.globe.rest.png", UriKind.Relative);
                 modeButton.Text = "World";
+                
             }
             else if (newMode == Mode.WorldMode)
             {
@@ -238,6 +236,7 @@ namespace BingWall
                 imagePreview.Visibility = System.Windows.Visibility.Collapsed;
                 modeButton.IconUri = new Uri("/images/appbar.home.rest.png", UriKind.Relative);
                 modeButton.Text = "Home";
+                ShowHideInfo(false);
             }
             else
             {
@@ -259,6 +258,7 @@ namespace BingWall
             NavigationService.Navigate(new Uri("/SettingsPage.xaml", UriKind.RelativeOrAbsolute));
         }
 
+
 #if DEBUG
         void debugMenuItem_Click(object sender, EventArgs e)
         {
@@ -274,6 +274,12 @@ namespace BingWall
         {
             base.OnNavigatedTo(e);
 
+            if (firstInstance)
+            {
+                if (Settings.LiveTile) Utils.SetupLiveTile(false);
+                firstInstance = false;
+            }
+
             SetMode(mode, false);
 
         }
@@ -283,10 +289,10 @@ namespace BingWall
 
             //this.imagePreview.Opacity = 0.4;
             SetImageSource(null);
-
+            infoLabel.Text = "";
             try
             {
-                string filename = ImageCache.GetImage(this.daysAgo, Utils.EffectiveCulture(Settings.CultureCode), new OnEndGetImageDelegate(OnImageDownloaded));
+                string filename = ImageCache.GetImage(this.daysAgo, Utils.EffectiveCulture(Settings.CultureCode), (this.Orientation & PageOrientation.Landscape) != 0, new OnEndGetImageDelegate(OnImageDownloaded));
                 if (filename != null)
                 {
                     DisplayImage(filename);
@@ -420,11 +426,9 @@ namespace BingWall
             if (!Settings.OobeShown)
             {
                 Settings.OobeShown = true;
-                string oobeMessage = "\nTry swiping left or right to change the day you are viewing!\n\n";
-#if ADSUPPORTED
-                oobeMessage += "Bing2Wall is ad supported. An ad-free version is avaliable for purchase: you can buy it from the about menu. (Tap ... to open the menu and select 'about'.)";
-#endif
+                string oobeMessage = "\nHave you pinned Bing2Wall to your start page? The tile will now use today's image as the background! (You can turn this off in Settings.)\n";
                 MessageBox.Show(oobeMessage, "what's new?", MessageBoxButton.OK);
+                Utils.EnableLiveTile();
             }
 
         }
@@ -452,6 +456,21 @@ namespace BingWall
                             SetImageSource(image);
                             file.Close();
                             this.statusLabel.Visibility = System.Windows.Visibility.Collapsed;
+                        }
+
+                        if(myStore.FileExists(fileName + ".info"))
+                        {
+                            using (Stream file = myStore.OpenFile(fileName + ".info", FileMode.Open, FileAccess.Read))
+                            {
+
+                                BinaryReader reader = new BinaryReader(file);
+                                infoLabel.Text = reader.ReadString();
+                                file.Close();
+                            }
+                        }
+                        else
+                        {
+                            infoLabel.Text = "no photo info";
                         }
                     }
                     catch (IsolatedStorageException ise)
@@ -579,7 +598,6 @@ namespace BingWall
             this.progressBar1.Visibility = System.Windows.Visibility.Visible;
             this.saving = true;
             SetAppBarButtons();
-
             if (this.displayedFileName != null)
             {
                 String fileName = this.displayedFileName;
@@ -699,7 +717,7 @@ namespace BingWall
 
             try
             {
-                string filename = ImageCache.GetImage(this.daysAgo, item.RegionCode, new OnEndGetImageDelegate(OnImageDownloaded));
+                string filename = ImageCache.GetImage(this.daysAgo, item.RegionCode, (this.Orientation & PageOrientation.Landscape) != 0, new OnEndGetImageDelegate(OnImageDownloaded));
                 if (filename != null)
                 {
                     DisplayImage(filename);
@@ -724,6 +742,10 @@ namespace BingWall
                 this.currentSaved = false;
                 imagePreview.Opacity = 1;
                 statusLabel.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            else
+            {
+                //ShowHideInfo(infoPanel.Visibility == System.Windows.Visibility.Collapsed);
             }
         }
 
@@ -757,6 +779,52 @@ namespace BingWall
                 }
             }
             flyoutAnimation.SetPosition(0);
+        }
+
+        private void PhoneApplicationPage_OrientationChanged(object sender, OrientationChangedEventArgs e)
+        {
+            LayoutControls();
+            if (mode == Mode.HomeMode)
+            {
+                LoadBingImage();
+            }
+            else if (mode == Mode.WorldItemMode)
+            {
+                if (worldList.SelectedIndex != -1)
+                {
+                    WorldListItem item = (WorldListItem)worldList.SelectedItem;
+                    ShowItem(item);
+                }
+            }
+        }
+
+        private void LayoutControls()
+        {
+            if ((Orientation & PageOrientation.Landscape) == 0)
+            {
+                imagePreview.Width = 360;
+                worldList.Width = 428;
+                infoLabel.Width = 340;
+                PageTitle.FontSize = 72;
+                imagePreview.Height = 600;
+                worldList.Height = 524;
+                TitlePanel.Margin = new Thickness(0, 17, 0, 24);
+            }
+            else
+            {
+                imagePreview.Width = 600;
+                worldList.Width = 600;
+                infoLabel.Width = 580;
+                imagePreview.Height = 360;
+                worldList.Height = 360;
+#if ADSUPPORTED
+                adControl.Visibility = System.Windows.Visibility.Collapsed;
+#else
+                TitlePanel.Margin = new Thickness(0, 17, 0, 8);
+
+#endif
+                PageTitle.FontSize = 48;
+            }
         }
 
 

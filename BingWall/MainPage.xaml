@@ -5,12 +5,11 @@
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:Custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
     x:Class="BingWall.MainPage"
     mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="768"
-    SupportedOrientations="Portrait" Orientation="Portrait"
-    shell:SystemTray.IsVisible="True" >
+    SupportedOrientations="PortraitOrLandscape" Orientation="Portrait"
+    shell:SystemTray.IsVisible="True" OrientationChanged="PhoneApplicationPage_OrientationChanged">
 	<phone:PhoneApplicationPage.Resources>
 		<DataTemplate x:Key="WorldListItemTemplate">
 			<Grid>
@@ -31,21 +30,7 @@
 		<StaticResource ResourceKey="PhoneForegroundBrush"/>
 	</phone:PhoneApplicationPage.Foreground>
     
-    <toolkit:TransitionService.NavigationInTransition>
-        <toolkit:NavigationInTransition>
-            <toolkit:NavigationInTransition.Backward>
-                <toolkit:TurnstileTransition Mode="BackwardIn"/>
-            </toolkit:NavigationInTransition.Backward>
-        </toolkit:NavigationInTransition>
-    </toolkit:TransitionService.NavigationInTransition>
-    <toolkit:TransitionService.NavigationOutTransition>
-        <toolkit:NavigationOutTransition>
-            <toolkit:NavigationOutTransition.Forward>
-                <toolkit:TurnstileTransition Mode="ForwardOut"/>
-            </toolkit:NavigationOutTransition.Forward>
-        </toolkit:NavigationOutTransition>
-    </toolkit:TransitionService.NavigationOutTransition>
-   
+
     <!--Sample code showing usage of ApplicationBar--><!--
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="False">
@@ -76,6 +61,9 @@
             <ListBox my:TiltEffect.IsTiltEnabled="True" Width="428" x:Name="worldList" Margin="28,8,0,0" ItemTemplate="{StaticResource WorldListItemTemplate}" SelectionChanged="worldList_SelectionChanged" HorizontalAlignment="Left" Height="524" VerticalAlignment="Top" ManipulationCompleted="paging_ManipulationCompleted" ManipulationDelta="paging_ManipulationDelta" />
             <TextBlock Height="30" HorizontalAlignment="Stretch" Margin="6,400,0,0" x:Name="statusLabel" Text="no image for this day in this region" VerticalAlignment="Top" Visibility="Collapsed" TextAlignment="Center" IsHitTestVisible="False" />
             <Image Height="600" HorizontalAlignment="Center" Margin="0,8,0,0" x:Name="imagePreview" Stretch="UniformToFill" VerticalAlignment="Top" Width="360" Visibility="Visible" MouseLeftButtonUp="imagePreview_MouseLeftButtonUp" ManipulationDelta="paging_ManipulationDelta" ManipulationCompleted="paging_ManipulationCompleted" />
+            <Border Background="#A0000000" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,32,0,8" Visibility="Collapsed" Name="infoPanel" IsHitTestVisible="False">
+                <TextBlock Width="340" HorizontalAlignment="Center" Margin="0,0,0,0" x:Name="infoLabel" Text="no image for this day in this region blhblah blahblah" VerticalAlignment="Top" TextAlignment="Left" IsHitTestVisible="False" Padding="8" TextWrapping="Wrap" />
+            </Border>
         </Grid>
     </Grid>
 

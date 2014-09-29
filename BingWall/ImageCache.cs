@@ -24,9 +24,9 @@ namespace BingWall
         private static IsolatedStorageFile myStore = IsolatedStorageFile.GetUserStoreForApplication();
         private static CacheImageRequest pendingRequest;
 
-        public static string GetImage(int daysAgo, string market, OnEndGetImageDelegate callback)
+        public static string GetImage(int daysAgo, string market, bool landscape, OnEndGetImageDelegate callback)
         {
-            string fileName = GetCachedFileName(daysAgo, market);
+            string fileName = GetCachedFileName(daysAgo, market, landscape);
             if (myStore.FileExists(fileName))
             {
                 return fileName;
@@ -39,7 +39,7 @@ namespace BingWall
                     pendingRequest = null;
                 }
 
-                pendingRequest = new CacheFullImageRequest(fileName, daysAgo, market);
+                pendingRequest = new CacheFullImageRequest(fileName, daysAgo, market, landscape);
                 pendingRequest.Begin(callback);
 
                 return null;
@@ -82,7 +82,7 @@ namespace BingWall
 
         public static void ClearCachedFiles(bool purgeAll)
         {
-            string lastFileName = GetCachedFileName(6, "");
+            string lastFileName = GetCachedFileName(6, "", false);
             IsolatedStorageFile myStore = IsolatedStorageFile.GetUserStoreForApplication();
             string[] fileNames = myStore.GetFileNames("cache\\*");
             foreach (string fileName in fileNames)
@@ -100,14 +100,14 @@ namespace BingWall
         }
 
 
-        private static string GetCachedFileName(int daysAgo, string market)
+        private static string GetCachedFileName(int daysAgo, string market, bool landscape)
         {
-            return String.Format("cache\\Bing{0:yyyy-MM-dd}{1}.jpg", DateTime.Today.AddDays(-daysAgo), market);
+            return String.Format("cache\\Bing{0:yyyy-MM-dd}{1}{2}.jpg", DateTime.Today.AddDays(-daysAgo), market, landscape ? "-l" : "");
         }
 
         public static string CacheThumbnail(Stream bitmapStream, string fileName, int daysAgo, string market, string etag)
         {
-            CacheImage(bitmapStream, fileName, false);
+            CacheImage(bitmapStream, fileName, null, false);
 
             string key = ThumbnailKey(daysAgo, market);
 
@@ -123,7 +123,7 @@ namespace BingWall
             return fileName;
         }
 
-        public static string CacheImage(Stream bitmapStream, string fileName, bool overwrite)
+        public static string CacheImage(Stream bitmapStream, string fileName, string info, bool overwrite)
         {
 
             string cacheFileName = fileName;
@@ -157,6 +157,18 @@ namespace BingWall
                 bitmapStream.Close();
                 myFileStream.Close();
                 Debug.WriteLine("Saved " + fileName);
+            }
+
+            if (info != null)
+            {
+                using (IsolatedStorageFileStream myFileStream = myStore.CreateFile(cacheFileName + ".info"))
+                {
+
+                    BinaryWriter writer = new BinaryWriter(myFileStream);
+                    writer.Write(info);
+                    myFileStream.Close();
+                    Debug.WriteLine("Saved info " + fileName);
+                }
             }
             return fileName;
         }

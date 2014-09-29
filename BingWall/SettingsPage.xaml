@@ -6,33 +6,11 @@
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit" 
-    xmlns:Custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
     x:Class="BingWall.SettingsPage"
     SupportedOrientations="Portrait" Orientation="Portrait"
     mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480"
     shell:SystemTray.IsVisible="True">
 
-    <toolkit:TransitionService.NavigationInTransition>
-        <toolkit:NavigationInTransition>
-            <toolkit:NavigationInTransition.Backward>
-                <toolkit:SlideTransition Mode="SlideRightFadeIn"/>
-            </toolkit:NavigationInTransition.Backward>
-            <toolkit:NavigationInTransition.Forward>
-                <toolkit:SlideTransition Mode="SlideLeftFadeIn"/>
-            </toolkit:NavigationInTransition.Forward>
-        </toolkit:NavigationInTransition>
-    </toolkit:TransitionService.NavigationInTransition>
-    <toolkit:TransitionService.NavigationOutTransition>
-        <toolkit:NavigationOutTransition>
-            <toolkit:NavigationOutTransition.Backward>
-                <toolkit:SlideTransition Mode="SlideRightFadeOut"/>
-            </toolkit:NavigationOutTransition.Backward>
-            <toolkit:NavigationOutTransition.Forward>
-                <toolkit:SlideTransition Mode="SlideLeftFadeOut"/>
-            </toolkit:NavigationOutTransition.Forward>
-        </toolkit:NavigationOutTransition>
-    </toolkit:TransitionService.NavigationOutTransition>
 
 
     <phone:PhoneApplicationPage.Resources>
@@ -98,10 +76,9 @@
             <TextBlock x:Name="regionFilterText" Text="The country/region list is filtered to those with known mobile Bing background support." Style="{StaticResource PhoneTextSubtleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="12,8,24,0">
             </TextBlock>
             <HyperlinkButton Content="Show all countries and regions" x:Name="regionFilterToggleButton" HorizontalAlignment="Left" HorizontalContentAlignment="Left" Click="regionFilterToggleButton_Click" Margin="0,8,0,0" />
-            <!--
-            <TextBlock Name="textBlock2" Text="On some phone models images will show banding when displayed on the lock screen. Bing2Wall can process images before saving to avoid this." Style="{StaticResource PhoneTextSubtleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="12,24,24,0" />
-            <CheckBox Content="Process images before saving" Height="72" Name="processCheckBox" Checked="processCheckBox_Checked" Unchecked="processCheckBox_Unchecked" />
--->
+           
+            <TextBlock Name="textBlock2" Text="Live Tile means that when Bing2Wall is pinned to the start screen it will use today's background as its icon" Style="{StaticResource PhoneTextSubtleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="12,36,24,0" />
+            <CheckBox Content="Enable Live Tile" Height="72" Name="liveTileCheckBox" Checked="liveTileCheckBox_Checked" Unchecked="liveTileCheckBox_Unchecked" />
         </StackPanel>
         <Popup Name="regionPopup" Width="480">
             <Border Background="{StaticResource PhoneChromeBrush}" Height="784" Width="480" Name="popupBorder">

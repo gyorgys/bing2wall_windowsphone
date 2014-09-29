@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using System.Windows.Media;
+using System;
 
 namespace BingWall
 {
@@ -25,6 +26,7 @@ namespace BingWall
             SetFilterText(false);
             originalRegion = Settings.CultureCode;
             // processCheckBox.IsChecked = Settings.ProcessImage;
+            liveTileCheckBox.IsChecked = Settings.LiveTile;
 
             this.BackKeyPress += new System.EventHandler<System.ComponentModel.CancelEventArgs>(SettingsPage_BackKeyPress);
 
@@ -141,6 +143,48 @@ namespace BingWall
             //SystemTray.IsVisible = true;
             regionPopup.IsOpen = false;
         }
+
+        private void liveTileCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            Utils.EnableLiveTile();
+        }
+
+        private void liveTileCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Utils.DisableLiveTile();
+        }
+
+        /*
+        private void liveTile_Checked(object sender, RoutedEventArgs e)
+        {
+            ShellTileSchedule mySchedule;
+
+            mySchedule = new ShellTileSchedule();
+
+            // Run the schedule every day for seven days, unless StopACurrentSchedule is called.
+            DateTime today = DateTime.Now.Date;
+
+            mySchedule.StartTime = today;
+            mySchedule.Interval = UpdateInterval.EveryDay;
+            mySchedule.Recurrence = UpdateRecurrence.Interval;
+            mySchedule.RemoteImageUri = new Uri(@"http://appserver.m.bing.net/BackgroundImageService/TodayImageService.svc/GetTodayImage?dateOffset=0&urlEncodeHeaders=true&osName=wince&osVersion=7.0&orientation=240x240&deviceName=WP7Device&mkt=en-us");
+
+            mySchedule.Start();
+
+            Settings.LiveTile = true;
+        }
+
+        private void liveTile_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ShellTileSchedule mySchedule;
+
+            mySchedule = new ShellTileSchedule();
+            mySchedule.Stop();
+
+            Settings.LiveTile = false;
+
+        }
+         */
 /*
         private void processCheckBox_Checked(object sender, RoutedEventArgs e)
         {

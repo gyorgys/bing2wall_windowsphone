@@ -83,7 +83,7 @@ namespace BingWall
                         dump += String.Format("ContentLength: {0}\n", response.ContentLength);
                         if (response.ContentType == "image/jpeg")
                         {
-                            ImageCache.CacheImage(response.GetResponseStream(), FileName, false);
+                            ImageCache.CacheImage(response.GetResponseStream(), FileName, null, false);
                             
                             dump += String.Format("Saved to: {0}\n", FileName);
                             cacheResult.status = CacheImageResultStatus.Success;

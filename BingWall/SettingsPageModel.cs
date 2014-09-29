@@ -302,6 +302,7 @@ new RegionItem( "Zimbabwe", "en-ZW", false )
             set
             {
                 Settings.CultureCode = value.LanguageCode;
+                if (Settings.LiveTile) Utils.SetupLiveTile(true);
                 NotifyPropertyChanged("SelectedItem");
             }
         }
